@@ -10,7 +10,7 @@
 
 - To list all properties - ```GET api/properties/list```
 - To fetch a single property - ```GET api/properties/property/{id}```
-- To create a new property - ```POST api/properties/property/create```
+- To create a new property - ```POST api/properties/property/store```
 
 POST Headers
 

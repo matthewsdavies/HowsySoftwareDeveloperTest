@@ -3,11 +3,27 @@
 namespace App\Http\Controllers\Properties;
 
 use App\Property;
-use Illuminate\Http\Request;
+use App\GeoCode\GeoCoderContract;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePropertyRequest;
 
 class PropertyController extends Controller
 {
+    /**
+     * @var GeoCoderContract
+     */
+    protected $geoCoder;
+
+    /**
+     * PropertyController constructor.
+     *
+     * @param GeoCoderContract $geoCoder
+     */
+    public function __construct(GeoCoderContract $geoCoder)
+    {
+        $this->geoCoder = $geoCoder;
+    }
+
     /**
      * Return a collection of properties
      *
@@ -32,24 +48,27 @@ class PropertyController extends Controller
     /**
      * Create a new property
      *
-     * @param Request $request
+     * @param StorePropertyRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function create(Request $request)
+    public function store(StorePropertyRequest $request)
     {
-        $property = Property::create([
-            'address_line_1' => $request->get('address_line_1'),
-            'address_line_2' => $request->get('address_line_2'),
-            'city' => $request->get('city'),
-            'postcode' => $request->get('city'),
-        ]);
+        $validatedData = $request->validated();
 
-        $geoCode = (new GeoCodeFactory($property))->getLatAndLng();
+        $property = Property::create($validatedData);
+
+        $geoCode = $this->geoCoder->getLatAndLng(
+                $property->address_line_1,
+                $property->address_line_2,
+                $property->city,
+                $property->postcode
+            );
+
         $property->latitude = $geoCode['lat'];
         $property->longitude = $geoCode['lng'];
         $property->save();
 
-        return response()->json($property);
+        return response()->json($property, 201);
     }
 }

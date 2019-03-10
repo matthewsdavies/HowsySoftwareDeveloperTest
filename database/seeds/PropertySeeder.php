@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use \App\Http\Controllers\Properties\GeoCodeFactory as GeoCodeFactory;
+use \App\GeoCode\GeoCodeFactory as GeoCodeFactory;
 
 class PropertySeeder extends Seeder
 {
@@ -22,7 +22,14 @@ class PropertySeeder extends Seeder
                 'postcode' => $faker->postcode
             ]);
 
-            $geoCode = (new GeoCodeFactory($property))->getLatAndLng();
+            $geoCode = (new GeoCodeFactory())
+                ->getLatAndLng(
+                    $property->address_line_1,
+                    $property->address_line_2,
+                    $property->city,
+                    $property->postcode
+                    );
+
             $property->latitude = $geoCode['lat'];
             $property->longitude = $geoCode['lng'];
             $property->save();

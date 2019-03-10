@@ -25,6 +25,6 @@ Route::group(
     function () {
         Route::get('list', 'PropertyController@list');
         Route::get('property/{property}', 'PropertyController@get');
-        Route::post('property/create', 'PropertyController@create');
+        Route::post('property/store', 'PropertyController@store');
     }
 );
